@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>😶‍🌫️</title>
+<title>Questionnaire</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>❓</text></svg>">
 <style>
 html, body {
   height: 100%;
@@ -18,6 +19,17 @@ body {
   align-items: center;
   text-align: center;
   overflow: hidden;
+  font-family: Arial, sans-serif; /* Added a fallback font */
+}
+
+/* --- Main Content (Hidden by default) --- */
+#main-content {
+    visibility: hidden;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .quiz-form {
@@ -106,171 +118,321 @@ h1, h2 {
 #result {
   font-size: 18px; /* increased font size */
 }
+
+/* --- NEW Password Lock Styles (Pink Theme) --- */
+#password-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(255, 192, 203, 0.65); /* Pink overlay */
+    backdrop-filter: blur(8px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    transition: opacity 0.3s ease-out;
+}
+
+#lock-box {
+    background-color: white; /* White box */
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+#lock-gif {
+    width: 150px;
+    height: 150px;
+    border-radius: 0.75rem;
+    margin-bottom: 1.5rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#password-input {
+    font-family: 'Orbitron', sans-serif;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    border: 2px solid #fbcfe8; /* Light pink border */
+    background-color: #fdf2f8; /* Very light pink bg */
+    color: #4b5563; /* Dark text */
+    font-size: 1.1rem;
+    text-align: center;
+    letter-spacing: 2px;
+}
+
+#password-input:focus {
+    outline: none;
+    border-color: #ec4899; /* Hot pink border on focus */
+}
+
+#submit-button {
+    font-family: 'Orbitron', sans-serif;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    background-color: #ec4899; /* Hot pink */
+    color: white;
+    font-weight: 700;
+    margin-top: 1rem;
+    transition: background-color 0.2s ease;
+    border: none;
+}
+
+#submit-button:hover {
+    background-color: #db2777; /* Deeper pink */
+}
+
+#error-message {
+    color: #ef4444; /* Red */
+    font-size: 0.9rem;
+    height: 1.25rem; /* Reserve space */
+    margin-top: 0.75rem;
+}
+
+/* Shake animation for wrong password */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+}
+
+.shake {
+    animation: shake 0.3s ease-in-out;
+}
+/* --- End Password Lock Styles --- */
+
 </style>
 </head>
 <body>
-<div id="quiz" class="quiz-form">
-  <h1>Questions</h1>
-  <div id="question"></div>
-  <input type="text" id="answerInput" placeholder="Type your answer here...">
-  <div id="result"></div>
-  <button class="btn" onclick="checkAnswer()">Submit</button>
-  <button id="nextBtn" class="btn" style="display: none;" onclick="nextQuestion()">Next</button>
+
+<!-- --- NEW Password Overlay --- -->
+<div id="password-overlay">
+    <form id="lock-box">
+        <img id="lock-gif" src="dudu-no-dudu.gif" alt="Dudu Bubu No">
+        <input id="password-input" type="password" placeholder="Enter Password">
+        <p id="error-message"></p>
+        <button id="submit-button" type="submit">Unlock</button>
+    </form>
 </div>
-<div id="finalMessage" class="panel" style="display: none;">
-  <h2>Agar ye message padh rahi ho to iska matlab sab answer theek dediye hai aapne</h2>
-  <h2>Ye itne saare dil aapke liye or bs itna kehna tha ki</h2>
-  <h1>I LOVE YOU 😘😘😘😘😘</h1>
-  <!-- Add the audio element for background music -->
-  <audio autoplay loop controls style="width: 200px; height: 20px; opacity: 0.5;">
-    <source src="music.mp3" type="audio/mpeg">
-    Your browser does not support the audio element.
-  </audio>
+
+<!-- --- Main Content Wrapper --- -->
+<div id="main-content">
+    <div id="quiz" class="quiz-form">
+      <h1>Questions</h1>
+      <div id="question"></div>
+      <input type="text" id="answerInput" placeholder="Type your answer here...">
+      <div id="result"></div>
+      <button class="btn" onclick="checkAnswer()">Submit</button>
+      <button id="nextBtn" class="btn" style="display: none;" onclick="nextQuestion()">Next</button>
+    </div>
+    <div id="finalMessage" class="panel" style="display: none;">
+      <h2>Agar ye message padh rahi ho to iska matlab sab answer theek dediye hai aapne</h2>
+      <h2>Ye itne saare dil aapke liye or bs itna kehna tha ki</h2>
+      <h1>I LOVE YOU 😘😘😘😘😘</h1>
+      <!-- Add the audio element for background music -->
+      <audio autoplay loop controls style="width: 200px; height: 20px; opacity: 0.5;">
+        <source src="music.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+      </audio>
+    </div>
 </div>
 
 <script>
-const quizData = [
-  {
-    question: "Apka naam kya hai? 💭",
-    correct: "Aqsa",
-    message: "Ary doodd, To agla ques tabhi dikhega jab answer correct hoga, chaliye fir aage badhte hai or aapka memory test karte hai (Answer sabka one word hai)"
-  },
-  {
-    question: "Hum pehli baar kaha mile (Jaha aap jaati thi or me bhi)? 🤔",
-    correct: "Tution",
-    message: "Nicee, ye hint samjhane ke liye tha ki kese chalega aage to ab se no hint!"
-  },
-  {
-    question: "Relation me aane ke baad pehli baar kaha mile the? 🤔",
-    correct: "Nani",
-    message: "Arryy dood, memory achi hai aapki, chaliye aage badhte hai!"
-  },
-  {
-    question: "Apko ek dusra naam diya tha mene wo kya tha? 😆",
-    correct: "Baqsa",
-    message: "🤣😂, Chaliye next ki taraf ab mushkile badhegi!"
-  },
-  {
-    question: "Milte he kya kara tha pehli baar jab mile the relation me aane ke baad? 😳",
-    correct: "Hug",
-    message: "Bachi ki tarah bhaagte huye utri thi aap😁 , aage badhiye"
-  },
-  {
-    question: "Uske baad kya kara tha? 🫣",
-    correct: "Kiss",
-    message: "🤭🤭 Sharmaiye mat itna! Ab jab aapke itne delicious lips honge to resist nhi kar paya tha me"
-  },
-  {
-    question: "Aap hot hai sirf ya bohot hot ya fir hottest hai?",
-    correct: "Hottest",
-    message: "🤒🤒 Sahi baat hai agr me aapko chu lu to fir mujhe bukhar hojata hai"
-  },
-  {
-    question: "Konsa colour mjhe tum par sabse acha lagta hoga? 🤔",
-    correct: "Black",
-    message: "Tum + Black = 2nd Hottest Thing in the world❤️‍🔥❤️‍🔥❤️‍🔥"
-  },
-  {
-    question: "Agar Adnan ke alawa mjhe kuch bolna ho to kya bologi? 🫣",
-    correct: "Baby",
-    message: "🫣🫣 Yeahh mee too - Hi babyyy"
-  },
-  {
-    question: "Ab jo agla aaega tumhare upar choice hai tumhe dekhna hai ya nahi. Ya to yahi chodhdo ya fir Type:Next?",
-    correct: "Next",
-    message: "Dhyan se next pr click krna"
-  }
-];
+document.addEventListener('DOMContentLoaded', () => {
 
-let currentQuestion = 0;
-const quizContainer = document.getElementById("quiz");
-const questionElement = document.getElementById("question");
-const answerInput = document.getElementById("answerInput");
-const resultElement = document.getElementById("result");
-const nextBtn = document.getElementById("nextBtn");
-const finalMessage = document.getElementById("finalMessage");
+    // --- NEW Password Lock Script ---
+    const passwordOverlay = document.getElementById('password-overlay');
+    const lockBox = document.getElementById('lock-box');
+    const passwordInput = document.getElementById('password-input');
+    const errorMessage = document.getElementById('error-message');
+    const mainContent = document.getElementById('main-content');
+    const correctPassword = "28072018";
 
-function showQuestion(question) {
-  questionElement.innerText = question.question;
-  answerInput.value = "";
-}
+    // Check if already unlocked in this session
+    if (sessionStorage.getItem('isUnlocked') === 'true') {
+        passwordOverlay.style.display = 'none';
+        mainContent.style.visibility = 'visible';
+    }
 
-function checkAnswer() {
-  const userAnswer = answerInput.value.trim().toLowerCase();
-  if (userAnswer === quizData[currentQuestion].correct.toLowerCase()) {
-    resultElement.innerText = quizData[currentQuestion].message;
-    nextBtn.style.display = "inline-block"; // Show next button only if the answer is correct
-  } else {
-    resultElement.innerText = "Answer is wrong! Dhyan se soch kar answer kare.";
-    nextBtn.style.display = "none"; // Hide next button if the answer is wrong
-  }
-}
+    lockBox.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const enteredPassword = passwordInput.value;
+
+        if (enteredPassword === correctPassword) {
+            // Correct password
+            sessionStorage.setItem('isUnlocked', 'true');
+            passwordOverlay.style.opacity = '0';
+            setTimeout(() => {
+                passwordOverlay.style.display = 'none';
+            }, 300); // Wait for fade out
+            mainContent.style.visibility = 'visible'; // Show the game
+        } else {
+            // Wrong password
+            errorMessage.textContent = 'Wrong Password. Try Again!';
+            lockBox.classList.add('shake');
+            passwordInput.value = '';
+
+            // Remove shake animation so it can be re-added
+            setTimeout(() => {
+                lockBox.classList.remove('shake');
+                errorMessage.textContent = ''; // Clear error message
+            }, 1000);
+        }
+    });
+    // --- End Password Lock Script ---
 
 
-function nextQuestion() {
-  resultElement.innerText = "";
-  nextBtn.style.display = "none";
-  if (currentQuestion < quizData.length - 1) {
-    currentQuestion++;
-    showQuestion(quizData[currentQuestion]);
-  } else {
-    quizContainer.style.display = "none";
-    finalMessage.style.display = "block";
-    // Heart Animation Code Below
-    const hearts = [];
-    const pinks = ["#ff748c", "#ff8da1", "#ffa7b6"];
-
-    class Heart {
-      constructor(x, y) {
-        this.x = x;
-        this.y = y;
-        this.theta = Math.random() * Math.PI * 2;
-        const heartEl = document.createElement("div");
-        heartEl.classList.add("heart");
-        document.body.append(heartEl);
-        const color = pinks[parseInt(Math.random() * pinks.length)];
-        heartEl.style.background = color;
-
-        const heartLeftEl = document.createElement("div");
-        heartLeftEl.classList.add('left');
-        heartLeftEl.style.background = color;
-        heartEl.appendChild(heartLeftEl);
-
-        const heartRightEl = document.createElement("div");
-        heartRightEl.classList.add('right');
-        heartRightEl.style.background = color;
-        heartEl.appendChild(heartRightEl);
-
-        this.el = heartEl;
-
-
-        setTimeout(() => {
-          this.el.remove();
-          hearts.splice(hearts.indexOf(this), 1);
-        }, 10000)
+    // --- Original Quiz Script ---
+    const quizData = [
+      {
+        question: "Apka naam kya hai? 💭",
+        correct: "Aqsa",
+        message: "Ary doodd, To agla ques tabhi dikhega jab answer correct hoga, chaliye fir aage badhte hai or aapka memory test karte hai (Answer sabka one word hai)"
+      },
+      {
+        question: "Hum pehli baar kaha mile (Jaha aap jaati thi or me bhi)? 🤔",
+        correct: "Tution",
+        message: "Nicee, ye hint samjhane ke liye tha ki kese chalega aage to ab se no hint!"
+      },
+      {
+        question: "Relation me aane ke baad pehli baar kaha mile the? 🤔",
+        correct: "Nani",
+        message: "Arryy dood, memory achi hai aapki, chaliye aage badhte hai!"
+      },
+      {
+        question: "Apko ek dusra naam diya tha mene wo kya tha? 😆",
+        correct: "Baqsa",
+        message: "🤣😂, Chaliye next ki taraf ab mushkile badhegi!"
+      },
+      {
+        question: "Milte he kya kara tha pehli baar jab mile the relation me aane ke baad? 😳",
+        correct: "Hug",
+        message: "Bachi ki tarah bhaagte huye utri thi aap😁 , aage badhiye"
+      },
+      {
+        question: "Uske baad kya kara tha? 🫣",
+        correct: "Kiss",
+        message: "🤭🤭 Sharmaiye mat itna! Ab jab aapke itne delicious lips honge to resist nhi kar paya tha me"
+      },
+      {
+        question: "Aap hot hai sirf ya bohot hot ya fir hottest hai?",
+        correct: "Hottest",
+        message: "🤒🤒 Sahi baat hai agr me aapko chu lu to fir mujhe bukhar hojata hai"
+      },
+      {
+        question: "Konsa colour mjhe tum par sabse acha lagta hoga? 🤔",
+        correct: "Black",
+        message: "Tum + Black = 2nd Hottest Thing in the world❤️‍🔥❤️‍🔥❤️‍🔥"
+      },
+      {
+        question: "Agar Adnan ke alawa mjhe kuch bolna ho to kya bologi? 🫣",
+        correct: "Baby",
+        message: "🫣🫣 Yeahh mee too - Hi babyyy"
+      },
+      {
+        question: "Ab jo agla aaega tumhare upar choice hai tumhe dekhna hai ya nahi. Ya to yahi chodhdo ya fir Type:Next?",
+        correct: "Next",
+        message: "Dhyan se next pr click krna"
       }
+    ];
 
-      update() {
-        this.x += Math.cos(this.theta) * 1;
-        this.y += 1;
-        this.theta += 0.01;
-        this.el.style.left = `${this.x}px`;
-        this.el.style.top = `${this.y}px`;
+    let currentQuestion = 0;
+    const quizContainer = document.getElementById("quiz");
+    const questionElement = document.getElementById("question");
+    const answerInput = document.getElementById("answerInput");
+    const resultElement = document.getElementById("result");
+    const nextBtn = document.getElementById("nextBtn");
+    const finalMessage = document.getElementById("finalMessage");
+
+    function showQuestion(question) {
+      questionElement.innerText = question.question;
+      answerInput.value = "";
+    }
+
+    window.checkAnswer = function() { // Made globally accessible from HTML onclick
+      const userAnswer = answerInput.value.trim().toLowerCase();
+      if (userAnswer === quizData[currentQuestion].correct.toLowerCase()) {
+        resultElement.innerText = quizData[currentQuestion].message;
+        nextBtn.style.display = "inline-block"; // Show next button only if the answer is correct
+      } else {
+        resultElement.innerText = "Answer is wrong! Dhyan se soch kar answer kare.";
+        nextBtn.style.display = "none"; // Hide next button if the answer is wrong
       }
     }
 
-    setInterval(() => {
-      const heart = new Heart(Math.random() * window.innerWidth, -100);
-      hearts.push(heart);
-    }, 200);
 
-    setInterval(() => {
-      hearts.forEach((heart) => heart.update());
-    }, 10);
-  }
-}
+    window.nextQuestion = function() { // Made globally accessible from HTML onclick
+      resultElement.innerText = "";
+      nextBtn.style.display = "none";
+      if (currentQuestion < quizData.length - 1) {
+        currentQuestion++;
+        showQuestion(quizData[currentQuestion]);
+      } else {
+        quizContainer.style.display = "none";
+        finalMessage.style.display = "block";
+        // Heart Animation Code Below
+        const hearts = [];
+        const pinks = ["#ff748c", "#ff8da1", "#ffa7b6"];
 
-showQuestion(quizData[currentQuestion]);
+        class Heart {
+          constructor(x, y) {
+            this.x = x;
+            this.y = y;
+            this.theta = Math.random() * Math.PI * 2;
+            const heartEl = document.createElement("div");
+            heartEl.classList.add("heart");
+            document.body.append(heartEl);
+            const color = pinks[parseInt(Math.random() * pinks.length)];
+            heartEl.style.background = color;
+
+            const heartLeftEl = document.createElement("div");
+            heartLeftEl.classList.add('left');
+            heartLeftEl.style.background = color;
+            heartEl.appendChild(heartLeftEl);
+
+            const heartRightEl = document.createElement("div");
+            heartRightEl.classList.add('right');
+            heartRightEl.style.background = color;
+            heartEl.appendChild(heartRightEl);
+
+            this.el = heartEl;
+
+
+            setTimeout(() => {
+              this.el.remove();
+              hearts.splice(hearts.indexOf(this), 1);
+            }, 10000)
+          }
+
+          update() {
+            this.x += Math.cos(this.theta) * 1;
+            this.y += 1;
+            this.theta += 0.01;
+            this.el.style.left = `${this.x}px`;
+            this.el.style.top = `${this.y}px`;
+          }
+        }
+
+        setInterval(() => {
+          const heart = new Heart(Math.random() * window.innerWidth, -100);
+          hearts.push(heart);
+        }, 200);
+
+        setInterval(() => {
+          hearts.forEach((heart) => heart.update());
+        }, 10);
+      }
+    }
+
+    showQuestion(quizData[currentQuestion]);
+
+}); // End of DOMContentLoaded
 </script>
 </body>
 </html>
